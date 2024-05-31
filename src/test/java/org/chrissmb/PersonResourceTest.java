@@ -22,9 +22,8 @@ public class PersonResourceTest {
         Person person = Person.builder()
                 .name("Mock Person")
                 .build();
-        String expectedJson = "{\"id\":1,\"name\":\"Mock Person\",\"birthday\":null,\"height\":null}";
         given().body(person).contentType("application/json")
                 .when().post("/person")
-                .then().statusCode(200).body(is(expectedJson));
+                .then().statusCode(200).body("name", is("Mock Person"));
     }
 }

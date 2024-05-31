@@ -14,14 +14,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class Person extends PanacheEntity {
-
-    // @Id @GeneratedValue
-    // private Long id;
     private String name;
     private Date birthday;
     private Double height;

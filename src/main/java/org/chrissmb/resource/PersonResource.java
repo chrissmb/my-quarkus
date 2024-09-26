@@ -4,20 +4,19 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.chrissmb.entity.Person;
+import org.chrissmb.exception.PersonNameNotInformedException;
 import org.chrissmb.service.SomeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
 
 @Path("/person")
 public class PersonResource {
@@ -42,11 +41,38 @@ public class PersonResource {
         return Person.listAll();
     }
 
+    @GET
+    @Path("{id}")
+    public Person getById(@PathParam("id") Long id) {
+        logger.info("getById {}", id);
+        return Person.findById(id);
+    }
+
     @POST
     @Transactional
     public Person save(Person person) {
         logger.info("save {}", person);
+        if (person.getName() == null || person.getName().isBlank()) {
+            throw new PersonNameNotInformedException();
+        }
         person.persist();
+        return person;
+    }
+
+    @PUT
+    @Path("{id}")
+    @Transactional
+    public Person save(Person person, @PathParam("id") Long id) {
+        logger.info("update {}", person);
+        if (person.getName() == null || person.getName().isBlank()) {
+            throw new PersonNameNotInformedException();
+        }
+        Person.<Person>findByIdOptional(id).ifPresent(person1 -> {
+            person1.setName(person.getName());
+            person1.setBirthday(person.getBirthday());
+            person1.setHeight(person.getHeight());
+            person1.persist();
+        });
         return person;
     }
 
